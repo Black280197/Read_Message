@@ -9,6 +9,7 @@ interface SMSReceiverProps {
 }
 let smsIds = [];
 let smsLst = [];
+let firstTime = true;
 
 const SMSReceiver: React.FC<SMSReceiverProps> = ({ onSmsReceived }) => {
   // const [smsIds, setSmsIds] = useState<number[]>([]);
@@ -74,14 +75,19 @@ const SMSReceiver: React.FC<SMSReceiverProps> = ({ onSmsReceived }) => {
           if (!smsIdsClone.includes(message._id)) {
             addSmsId(message._id)
             addSmsLst(message)
-            readSmsAloud(message.body);
-            displayMessageOnUI(message.body);
+            if (!firstTime) {
+              readSmsAloud(message.body);
+              displayMessageOnUI(message.body);
+            } else {
+              readSmsAloud("Chào mừng bạn đến với ứng dụng đọc tin nhắn SMS, một sản phẩm có sứ mệnh là quà tặng dành cho chị Hoàng Thị Liên xin gái, đảm đang, ngoan hiền nhất trần đời!");
+            }
             smsIdsClone = smsIds;
           }
           // Chuyển đổi thành lời nói
           
         });
         onSmsReceived([...smsLst]);
+        firstTime = false;
       }
     );
   };
@@ -95,7 +101,7 @@ const SMSReceiver: React.FC<SMSReceiverProps> = ({ onSmsReceived }) => {
     ToastAndroid.showWithGravity(
       message,
       ToastAndroid.LONG,
-      ToastAndroid.BOTTOM
+      ToastAndroid.CENTER
     );
   };
 
