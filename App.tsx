@@ -8,10 +8,20 @@ const backgroundImage = require('./android/assets/image/lien.jpg');
 const App = () => {
   const [smsList, setSmsList] = useState<any[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
+  const [firstTime, setFirstTime] = useState<boolean>(true);
+
 
   const handleSmsReceived = (smsList: any[]) => {
     setSmsList([...smsList]);
-    console.log(smsList.length)
+  };
+
+  const handleChangeFirsttime = (fst: boolean, idInt: number) => {
+    clearInterval(idInt)
+    setFirstTime(fst);
+  };
+
+  const firstT = () => {
+    return firstTime;
   };
 
   useEffect(() => {
@@ -29,14 +39,14 @@ const App = () => {
     >
     <View style={styles.card}>
       <Text style={styles.title}>Chào mừng bạn đến với ứng dụng đọc tin nhắn SMS</Text>
-      <SMSReceiver onSmsReceived={handleSmsReceived} />
+      <SMSReceiver onSmsReceived={handleSmsReceived} onChangeFirsttime={handleChangeFirsttime} firstT={firstT}/>
       <View>
         <Text style={styles.title} >Danh sách tin nhắn mới:</Text>
         {smsList.map((sms, index) => (
-          <View style={styles.card}>
-          <Text style={styles.title} key={index + 'title'}>{`${sms._id}_TIME: ${formatTimestamp(sms.date)}`}</Text>
-          <Text style={styles.titleVer2} key={index + 'extra'}>{`ADD: ${sms.address}_CRE: ${sms.creator}`}</Text>
-          <Text style={styles.message} key={index}>{`ND: ${sms.body}`}</Text>
+          <View style={styles.card} key={index}>
+          <Text style={styles.title}>{`${sms._id}_TIME: ${formatTimestamp(sms.date)}`}</Text>
+          <Text style={styles.titleVer2}>{`ADD: ${sms.address}_CRE: ${sms.creator}`}</Text>
+          <Text style={styles.message}>{`ND: ${sms.body}`}</Text>
           </View>
         ))}
       </View>
