@@ -1,117 +1,97 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { ScrollView, View, Text, StyleSheet  } from 'react-native';
+import SMSReceiver from './SMSReceiver.d';
+import { useEffect, useRef, useState } from 'react';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  const [smsList, setSmsList] = useState<any[]>([]);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleSmsReceived = (smsList: any[]) => {
+    setSmsList([...smsList]);
+    console.log(smsList.length)
   };
 
+  useEffect(() => {
+    // Scroll lên đầu trang mỗi khi có tin nhắn mới
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }, [smsList.length]);
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <ScrollView ref={scrollViewRef} style={styles.container}>
+    <View style={styles.card}>
+      <Text style={styles.title}>Chào mừng bạn đến với ứng dụng đọc tin nhắn SMS</Text>
+      <SMSReceiver onSmsReceived={handleSmsReceived} />
+      <View>
+        <Text style={styles.title} >Danh sách tin nhắn mới:</Text>
+        {smsList.map((sms, index) => (
+          <View style={styles.card}>
+          <Text style={styles.title} key={index + 'title'}>{`${sms._id}_TIME: ${formatTimestamp(sms.date)}`}</Text>
+          <Text style={styles.titleVer2} key={index + 'extra'}>{`ADD: ${sms.address}_CRE: ${sms.creator}`}</Text>
+          <Text style={styles.message} key={index}>{`ND: ${sms.body}`}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+    </ScrollView>
   );
-}
+};
+
+const formatTimestamp = (timestamp: number): string => {
+  // Tạo một đối tượng Date từ timestamp (timestamp tính bằng milliseconds)
+  const date = new Date(timestamp);
+
+  // Các tùy chọn định dạng cho ngày và giờ
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, // Sử dụng 24 giờ
+  };
+
+  // Định dạng ngày tháng năm giờ phút
+  return date.toLocaleDateString('vi-VN', options);
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  card: {
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 8,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    textAlign: 'center'
   },
-  sectionDescription: {
-    marginTop: 8,
+  title: {
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center'
+
   },
-  highlight: {
-    fontWeight: '700',
+  titleVer2: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center'
+
+  },
+  message: {
+    fontSize: 16,
+    color: '#666',
   },
 });
 
